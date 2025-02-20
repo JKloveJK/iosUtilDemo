@@ -8,5 +8,6 @@ target 'iosUtilDemo' do
   # Pods for iosUtilDemo
   pod 'SnapKit'
   pod 'LookinServer', :configurations => ['Debug']
+  pod 'Kingfisher', '~> 7.0'  # 添加 Kingfisher 依赖
 
 end
