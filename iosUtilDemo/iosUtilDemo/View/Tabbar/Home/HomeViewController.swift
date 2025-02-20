@@ -102,6 +102,12 @@ extension HomeViewController {
             return
         }
         
+        guard let addButton = navigationItem.rightBarButtonItem?.customView,
+              let window = UIApplication.shared.windows.first else { return }
+        let addButtonFrame = addButton.convert(addButton.bounds, to: window)
+        
+        let triangleHeight: CGFloat = 8
+        
         let menuView = UIView()
         menuView.backgroundColor = UIColor(hex: "#4c4c4c")
         menuView.layer.cornerRadius = 8
@@ -120,11 +126,26 @@ extension HomeViewController {
         view.addSubview(bgView)
         self.backgroundView = bgView
         
+        let triangleView = TriangleView(fillColor: UIColor(hex: "#4c4c4c"))
+        menuView.addSubview(triangleView)
+        
         menuView.snp.makeConstraints { make in
             make.top.equalTo(navigationController?.navigationBar.snp.bottom ?? view.snp.top).offset(10)
             make.right.equalTo(view).offset(-10)
-            make.width.equalTo(150)
+            make.width.equalTo(130)
             make.height.equalTo(224)
+        }
+        
+        // 设置三角形位置
+        triangleView.snp.makeConstraints { make in
+            make.bottom.equalTo(menuView.snp.top)
+            make.right.equalTo(menuView).offset(-20)
+            make.width.equalTo(16)
+            make.height.equalTo(triangleHeight)
+        }
+        
+        bgView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         
         let menuItems = [
@@ -202,9 +223,12 @@ extension HomeViewController {
         UIView.animate(withDuration: 0.2, animations: {
             self.dropdownView?.transform = CGAffineTransform(translationX: 0, y: -10)
             self.dropdownView?.alpha = 0
+            self.backgroundView?.alpha = 0
         }) { _ in
             self.dropdownView?.removeFromSuperview()
             self.dropdownView = nil
+            self.backgroundView?.removeFromSuperview()
+            self.backgroundView = nil
         }
     }
     
