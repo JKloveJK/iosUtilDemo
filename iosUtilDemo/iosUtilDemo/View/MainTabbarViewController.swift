@@ -32,8 +32,6 @@ class MainTabbarViewController: UITabBarController {
         let discoverVC = DiscoverViewController()
         let meVC = MeViewController()
         
-        homeVC.updateUnreadCount(5)
-        
         let homeNav = UINavigationController(rootViewController: homeVC)
         let contactsNav = UINavigationController(rootViewController: contactsVC)
         let discoverNav = UINavigationController(rootViewController: discoverVC)

@@ -96,7 +96,7 @@ class ConversationCell: UITableViewCell {
     }
     
     func configure(with conversation: Conversation) {
-//        avatarImageView.image = UIImage(named: conversation.avatar)
+        //        avatarImageView.image = UIImage(named: conversation.avatar)
         if let url = URL(string: conversation.avatar) {
             avatarImageView.kf.setImage(with: url, placeholder: UIImage(named: "loading"), options: [
                 .transition(.fade(0.2)),          // 淡入淡出动画
@@ -124,39 +124,38 @@ class ConversationCell: UITableViewCell {
     private func formatDate(_ date: Date) -> String {
         let calendar = Calendar.current
         let now = Date()
-        let components = calendar.dateComponents([.day], from: date, to: now)
         
-        // 创建日期格式器
-        let timeFormatter = DateFormatter()
-        let dateFormatter = DateFormatter()
-        
-        // 设置时间格式为 "HH:mm"（24小时制）
-        timeFormatter.dateFormat = "HH:mm"
-        // 设置日期格式为 "MM-dd"
-        dateFormatter.dateFormat = "MM-dd"
-        
-        // 获取今天0点的日期
-        let startOfToday = calendar.startOfDay(for: now)
-        
+        // 今天
         if calendar.isDate(date, inSameDayAs: now) {
-            // 今天，显示具体时间，如 "14:30"
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
             return timeFormatter.string(from: date)
-        } else if let days = components.day, days == 1 {
-            // 昨天，显示"昨天"
+        }
+        
+        // 昨天
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: now),
+           calendar.isDate(date, inSameDayAs: yesterday) {
             return "昨天"
-        } else if let days = components.day, days < 7 {
-            // 一周内，显示周几
+        }
+        
+        // 本周其他日期
+        if calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear) {
             let weekdayFormatter = DateFormatter()
             weekdayFormatter.locale = Locale(identifier: "zh_CN")
             weekdayFormatter.dateFormat = "EEEE"
             return weekdayFormatter.string(from: date)
-        } else if calendar.component(.year, from: date) == calendar.component(.year, from: now) {
-            // 今年，显示 "MM-dd"
-            return dateFormatter.string(from: date)
-        } else {
-            // 更早，显示 "yyyy-MM-dd"
-            dateFormatter.dateFormat = "yyyy-MM-dd"
+        }
+        
+        // 今年
+        if calendar.isDate(date, equalTo: now, toGranularity: .year) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM-dd"
             return dateFormatter.string(from: date)
         }
+        
+        // 更早
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.string(from: date)
     }
 }
