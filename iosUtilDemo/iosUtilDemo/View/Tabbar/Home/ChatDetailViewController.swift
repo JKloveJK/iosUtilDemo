@@ -96,7 +96,7 @@ class ChatDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .white.withAlphaComponent(0.7)
         title = viewModel.conversation.name
         
         // 配置表格视图

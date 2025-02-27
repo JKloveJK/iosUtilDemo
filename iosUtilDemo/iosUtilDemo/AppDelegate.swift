@@ -12,19 +12,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     private var launchScreenViewController: LaunchScreenViewController?
-    
-    override init() {
-        super.init()
-        // 在初始化时就创建窗口和启动页
-        setupLaunchScreen()
-    }
-    
-    private func setupLaunchScreen() {
-//        window = UIWindow(frame: UIScreen.main.bounds)
-//        window?.backgroundColor = .white
-//        launchScreenViewController = LaunchScreenViewController()
-//        window?.rootViewController = launchScreenViewController
-    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -40,6 +27,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         return true
+    }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return .portrait
     }
     
     private func showMainInterface() {
