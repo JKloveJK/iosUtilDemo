@@ -8,8 +8,36 @@
 import Foundation
 import UIKit
 import Kingfisher
+import AVFoundation
 
 class MessageCell: UITableViewCell {
+    private var audioUrl: URL? = nil
+    
+    private lazy var voiceView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+    
+    private lazy var voiceButton: UIButton = {
+        let btn = UIButton()
+        btn.addTarget(self, action: #selector(toggleVoicePlay), for: .touchUpInside)
+        return btn
+    }()
+    
+    private lazy var voiceDurationLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        return label
+    }()
+    
+    private lazy var voiceWaveView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.animationDuration = 1.0
+        iv.animationRepeatCount = 0
+        return iv
+    }()
     private let avatarImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
@@ -45,6 +73,9 @@ class MessageCell: UITableViewCell {
         setupUI()
     }
     
+    private var audioPlayer: AVAudioPlayer?
+    private var isPlaying = false
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -75,10 +106,39 @@ class MessageCell: UITableViewCell {
         messageLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
         }
+        
+        contentView.addSubview(voiceView)
+        voiceView.addSubview(voiceWaveView)
+        voiceView.addSubview(voiceDurationLabel)
+        voiceView.addSubview(voiceButton)
+        
+        voiceButton.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        voiceWaveView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.width.equalTo(20)
+            $0.height.equalTo(15)
+        }
+        
+        voiceDurationLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+        }
     }
     
     func configure(with message: Message) {
-        messageLabel.text = message.content
+        switch message.type {
+        case .text(let text):
+            messageLabel.text = text
+            messageLabel.isHidden = false
+            voiceView.isHidden = true
+        case .voice(let duration, let url):
+            configureVoiceView(duration: duration, url: url, isSelf: message.isSelf)
+            messageLabel.isHidden = true
+            voiceView.isHidden = false
+        }
+        
         timeLabel.text = formatDate(message.time)
         
         if let url = URL(string: message.avatarUrl) {
@@ -131,14 +191,81 @@ class MessageCell: UITableViewCell {
         timeLabel.textColor = UIColor(white: 0.6, alpha: 1)
     }
     
+    private func configureVoiceView(duration: TimeInterval, url: URL, isSelf: Bool) {
+        audioUrl = url
+        voiceDurationLabel.text = "\(Int(duration))''"
+        voiceWaveView.image = UIImage(named: isSelf ? "voice_right_3" : "voice_left_3")
+//        voiceWaveView.animationImages = (1...3).map {
+//            UIImage(named: isSelf ? "voice_right_\($0)" : "voice_left_\($0)")!
+//        }
+        
+        // 布局调整
+        if isSelf {
+            voiceWaveView.snp.remakeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalToSuperview().offset(-12)
+                $0.width.equalTo(20)
+                $0.height.equalTo(15)
+            }
+            voiceDurationLabel.snp.remakeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.trailing.equalTo(voiceWaveView.snp.leading).offset(-8)
+            }
+        } else {
+            voiceWaveView.snp.remakeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.leading.equalToSuperview().offset(12)
+                $0.width.equalTo(20)
+                $0.height.equalTo(15)
+            }
+            voiceDurationLabel.snp.remakeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.leading.equalTo(voiceWaveView.snp.trailing).offset(8)
+            }
+        }
+    }
+    
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
     
+    @objc private func toggleVoicePlay() {
+        isPlaying.toggle()
+        
+        isPlaying ? startPlaying() : stopPlaying()
+    }
+    
+    private func startPlaying() {
+        voiceWaveView.startAnimating()
+        // 实现音频播放逻辑
+        if let url = audioUrl {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: url)
+                audioPlayer?.delegate = self
+                audioPlayer?.play()
+            } catch {
+                print("播放失败: \(error)")
+            }
+        }
+    }
+    
+    private func stopPlaying() {
+        voiceWaveView.stopAnimating()
+        audioPlayer?.stop()
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
-        avatarImageView.image = nil
+        stopPlaying()
+        voiceWaveView.animationImages = nil
+        audioUrl = nil
+    }
+}
+
+extension MessageCell: AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        stopPlaying()
     }
 }

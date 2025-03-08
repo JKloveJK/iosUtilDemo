@@ -218,6 +218,8 @@
 				DEVELOPMENT_TEAM = W66ZL3WXA4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosUtilDemo/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "请求使用你的麦克风";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "请求使用语音识别功能";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
@@ -248,6 +250,8 @@
 				DEVELOPMENT_TEAM = W66ZL3WXA4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosUtilDemo/Info.plist;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "请求使用你的麦克风";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "请求使用语音识别功能";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
